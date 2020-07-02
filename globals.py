@@ -1,5 +1,4 @@
 from discord.ext import commands
-import numpy as np
 
 
 class ShuffleState():

@@ -2,12 +2,9 @@ import asyncio
 import os
 import discord
 import discord.ext.commands as commands
-import numpy as np
 import math
 from coolname import generate
 from discord import Forbidden
-
-from utils import get_guild
 
 import globals as g
 
