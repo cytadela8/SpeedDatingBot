@@ -5,11 +5,10 @@ import numpy as np
 class ShuffleState():
     def __init__(self):
         self.array = []
+        
 
     def shuffle(self):
-        self.array = np.array(
-            [np.roll(group, i) for i, group in enumerate(self.array)]
-        ).transpose()
+        self.array = list(zip(*[group[i:] + group[:i] for i, group in enumerate(self.array)]))
 
 
 def init_globals():
