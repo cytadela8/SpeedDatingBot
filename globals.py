@@ -5,10 +5,9 @@ import numpy as np
 class ShuffleState():
     def __init__(self):
         self.array = []
-        
 
     def shuffle(self):
-        self.array = list(zip(*[group[i:] + group[:i] for i, group in enumerate(self.array)]))
+        self.array = list(zip(*[group[i:] + group[:i] for i, group in enumerate(zip(*self.array))]))
 
 
 def init_globals():
