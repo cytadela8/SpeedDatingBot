@@ -51,18 +51,19 @@ async def on_command_error(ctx, error):
 
 
 async def do_move():
-    guild = get_guild()
-    tasks = []
     for group, channel in zip(shuffleState.array, shuffleState.channels):
         for member in group:
             if member is None:
                 continue
             print(member, channel)
-            tasks.append(member.move_to(channel))
-    try:
-        await asyncio.gather(*tasks)
-    except Forbidden as forbidden:
-        print("Can't move somebody :(", forbidden)
+            try:
+                await member.move_to(channel)
+            except Forbidden as f:
+                try:
+                    await member.create_dm()
+                    await member.dm_channel.send("Przejdź proszę do kanału: " + channel.name)
+                except Exception as e:
+                    pass
 
 
 @bot.command(name='shuffle-start')
@@ -78,8 +79,8 @@ async def shuffle_start(ctx, channel: discord.VoiceChannel, category: discord.Ca
         tasks.append(ctx.send("Liczba osób do teleportacji: " + str(len(people))))
 
         group_count = math.ceil(len(people)/group_size)
-        while group_count%2 == 0 or group_count%3 == 0:
-            group_count+=1
+        # while group_count%2 == 0 or group_count%3 == 0:
+        #     group_count+=1
 
         groups = [[] for _ in range(group_count)]
         it = 0
@@ -91,7 +92,6 @@ async def shuffle_start(ctx, channel: discord.VoiceChannel, category: discord.Ca
         while it < len(groups):
             groups[it].append(None)
             it+=1
-        groups = np.array(groups)
         shuffleState.array = groups
         shuffleState.channels = []
 
@@ -122,6 +122,30 @@ async def remove_voice(ctx, category: discord.CategoryChannel):
         for voice in category.voice_channels:
             await voice.delete()
     await ctx.message.add_reaction('✅')
+
+
+@bot.command(name='fix-everybody')
+@commands.is_owner()
+async def fix_everybody(ctx):
+    async with ctx.typing():
+        await do_move()
+    await ctx.message.add_reaction('✅')
+
+
+@bot.command(name='gather')
+@commands.is_owner()
+async def gather(ctx, target: discord.VoiceChannel):
+    async with ctx.typing():
+        tasks = []
+        for group, channel in zip(shuffleState.array, shuffleState.channels):
+            for member in group:
+                if member is None:
+                    continue
+                print(member)
+                tasks.append(member.move_to(target))
+        await asyncio.gather(*tasks)
+    await ctx.message.add_reaction('✅')
+
 
 token = os.environ.get("TOKEN")
 g.bot.run(token)
