@@ -79,8 +79,8 @@ async def shuffle_start(ctx, channel: discord.VoiceChannel, category: discord.Ca
         tasks.append(ctx.send("Liczba osób do teleportacji: " + str(len(people))))
 
         group_count = math.ceil(len(people)/group_size)
-        # while group_count%2 == 0 or group_count%3 == 0:
-        #     group_count+=1
+        while group_size>2 and (group_count%2 == 0 or group_count%3 == 0):
+            group_count += 1
 
         groups = [[] for _ in range(group_count)]
         it = 0
